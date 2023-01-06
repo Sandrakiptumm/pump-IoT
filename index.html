@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style/dashboard.css">
+</head>
+<body>
+    <main>
+        
+        <section class="sidenav">
+            <h1>Pump IoT</h1>
+            <div>
+                <ul>
+                    <li>Overview</li>
+                    <li>Notifications</li>
+                    <li>Reports</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="main">
+            <header>
+                <h1>Overview</h1>
+            </header>
+            <div class="chart">
+                <canvas id="myChart"></canvas>
+            </div>
+        </section>
+        <section id="user_det">
+            <div id="details">
+                <h3>Pump Properties</h3>
+                <ul>
+                    <li>Voltage</li>
+                    <li>Current</li>
+                    <li>Speed</li>
+
+                </ul>                
+                
+            </div>
+            <div id="extra">
+                <h3>Tank Activity</h3>
+                <ul>
+                    <h5>Today</h5>
+                    <li>Water present</li>
+                    <li>Water Used</li>
+                    <h5>Yesterday</h5>
+                    <li>Water present</li>
+                    <li>Water Used</li>
+
+                </ul>
+            </div>
+        </section>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/doughnut.js"></script>
+</body>
+</html>
