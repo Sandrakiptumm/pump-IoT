@@ -44,7 +44,7 @@ body main #main header {
 body main #main .chart {
   display: flex;
   justify-content: center;
-  width: 30vw;
+  width: 25vw;
   padding: 1.2em;
   border-radius: 8px;
 }
