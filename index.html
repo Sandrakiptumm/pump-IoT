@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style/dashboard.css">
+    <script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js"></script>
+	<script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/themes/fusioncharts.theme.fusion.js"></script>
+	
+</head>
+<body>
+    <main>
+        
+        <section class="sidenav">
+            <h1>Pump IoT</h1>
+            <div>
+                <ul>
+                    <li>Overview</li>
+                    <li>Notifications</li>
+                    <li>Reports</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="main">
+            <header>
+                <h1>Overview</h1>
+            </header>
+            <div class="chart">
+                <div id="chart-container">FusionCharts XT will load here!</div>
+                <canvas id="myChart"></canvas>
+            </div>
+        </section>
+        <section id="user_det">
+            <div id="details">
+                <h3>Pump Properties</h3>
+                <ul>
+                    <li>Voltage</li>
+                    <li>Current</li>
+                    <li>Speed</li>
+
+                </ul>                
+                
+            </div>
+            <div id="extra">
+                <h3>Tank Activity</h3>
+                <ul>
+                    <h5>Today</h5>
+                    <li>Water present</li>
+                    <li>Water Used</li>
+                    <h5>Yesterday</h5>
+                    <li>Water present</li>
+                    <li>Water Used</li>
+                </ul>
+
+                <table>
+                    <tr>
+                    <th>Usage</th>
+                    </tr>
+
+                    <tbody id="data"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/doughnut.js"></script>
+    <script src="js/cylinder.js"></script>
+
+    
+
+<script>
+    
+    var ajax = new XMLHttpRequest();
+    ajax.open("GET", "data/read_data.php", true);
+    ajax.send();
+    
+    ajax.onreadystatechange = function() {
+        let usage;
+        if (this.readyState == 4 && this.status == 200) {
+            var data = JSON.parse(this.responseText);
+
+            var html = "";
+            for(var a = 0; a < data.length; a++) {
+                usage = data[a].usage_val;
+                html += "<tr>";
+                    html += "<td>" + usage + "</td>";
+                html += "</tr>";
+            }
+            document.getElementById("data").innerHTML += html;
+            const ctx = document.getElementById('myChart');
+
+            let fulltank= 80;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        'present water',
+                        'Used water'
+                    ],
+                    datasets: [{
+                        data: [fulltank-usage, usage],
+                        backgroundColor: [
+                        'rgb(90, 123, 253)',              
+                        'rgb(190, 206, 255)'
+                        ],
+                        hoverOffset: 3
+                        
+                    }]
+                }
+            });
+        }
+        
+    };
+    
+
+</script>
+</body>
+</html>
