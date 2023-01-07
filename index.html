@@ -8,91 +8,7 @@
     <link rel="stylesheet" href="style/dashboard.css">
     <script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js"></script>
 	<script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/themes/fusioncharts.theme.fusion.js"></script>
-	<script type="text/javascript">
-		FusionCharts.ready(function(){
-			var chartObj = new FusionCharts({
-                type: 'cylinder',
-                dataFormat: 'json',
-                renderAt: 'chart-container',
-                width: '200',
-                height: '350',
-                dataSource: {
-                    "chart": {
-                        "theme": "fusion",
-                        "caption": "Diesel Level in Generator",
-                        "subcaption": "Bakersfield Central",
-                        "lowerLimit": "0",
-                        "upperLimit": "120",
-                        "lowerLimitDisplay": "Empty",
-                        "upperLimitDisplay": "Full",
-                        "numberSuffix": " ltrs",
-                        "showValue": "1",
-                        "chartBottomMargin": "45",
-                        "showValue": "0"
-                    },
-                    "value": "110",
-                    "annotations": {
-                        "origw": "400",
-                        "origh": "190",
-                        "autoscale": "1",
-                        "groups": [{
-                            "id": "range",
-                            "items": [{
-                                "id": "rangeBg",
-                                "type": "rectangle",
-                                "x": "$canvasCenterX-45",
-                                "y": "$chartEndY-30",
-                                "tox": "$canvasCenterX +45",
-                                "toy": "$chartEndY-75",
-                                "fillcolor": "#6caa03"
-                            }, {
-                                "id": "rangeText",
-                                "type": "Text",
-                                "fontSize": "11",
-                                "fillcolor": "#333333",
-                                "text": "80 ltrs",
-                                "x": "$chartCenterX-45",
-                                "y": "$chartEndY-50"
-                            }]
-                        }]
-                    }
-
-                },
-                "events": {
-                    "rendered": function(evtObj, argObj) {
-                        var fuelVolume = 110;
-                        evtObj.sender.chartInterval = setInterval(function() {
-                            (fuelVolume < 10) ? (fuelVolume = 80) : "";
-                            var consVolume = fuelVolume - (Math.floor(Math.random() * 3));
-                            evtObj.sender.feedData && evtObj.sender.feedData("&value=" + consVolume);
-                            fuelVolume = consVolume;
-                        }, 1000);
-                    },
-                    //Using real time update event to update the annotation
-                    //showing available volume of Diesel
-                    "realTimeUpdateComplete": function(evt, arg) {
-                        var annotations = evt.sender.annotations,
-                            dataVal = evt.sender.getData(),
-                            colorVal = (dataVal >= 70) ? "#6caa03" : ((dataVal <= 35) ? "#e44b02" : "#f8bd1b");
-                        //Updating value
-                        annotations && annotations.update('rangeText', {
-                            "text": dataVal + " ltrs"
-                        });
-                        //Changing background color as per value
-                        annotations && annotations.update('rangeBg', {
-                            "fillcolor": colorVal
-                        });
-
-                    },
-                    "disposed": function(evt, arg) {
-                        clearInterval(evt.sender.chartInterval);
-                    }
-                }
-            }
-            );
-			chartObj.render();
-		});
-	</script>
+	
 </head>
 <body>
     <main>
@@ -137,12 +53,70 @@
                     <h5>Yesterday</h5>
                     <li>Water present</li>
                     <li>Water Used</li>
-
                 </ul>
+
+                <table>
+                    <tr>
+                    <th>Usage</th>
+                    </tr>
+
+                    <tbody id="data"></tbody>
+                </table>
             </div>
         </section>
     </main>    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/doughnut.js"></script>
+    <script src="js/cylinder.js"></script>
+
+    
+
+<script>
+    
+    var ajax = new XMLHttpRequest();
+    ajax.open("GET", "data/read_data.php", true);
+    ajax.send();
+    
+    ajax.onreadystatechange = function() {
+        let usage;
+        if (this.readyState == 4 && this.status == 200) {
+            var data = JSON.parse(this.responseText);
+
+            var html = "";
+            for(var a = 0; a < data.length; a++) {
+                usage = data[a].usage_val;
+                html += "<tr>";
+                    html += "<td>" + usage + "</td>";
+                html += "</tr>";
+            }
+            document.getElementById("data").innerHTML += html;
+            const ctx = document.getElementById('myChart');
+
+            let fulltank= 80;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        'present water',
+                        'Used water'
+                    ],
+                    datasets: [{
+                        data: [fulltank-usage, usage],
+                        backgroundColor: [
+                        'rgb(90, 123, 253)',              
+                        'rgb(190, 206, 255)'
+                        ],
+                        hoverOffset: 3
+                        
+                    }]
+                }
+            });
+        }
+        
+    };
+    
+
+</script>
 </body>
 </html>
