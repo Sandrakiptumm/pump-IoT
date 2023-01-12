@@ -36,6 +36,7 @@
         <section id="user_det">
             <div id="details">
                 <h3>Pump Properties</h3>
+                <input type="checkbox" name="switch" id="switch"/>
                 <ul>
                     <li>Voltage</li>
                     <li>Current</li>
@@ -66,8 +67,6 @@
         </section>
     </main>    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/doughnut.js"></script>
-    <script src="js/cylinder.js"></script>
 
     
 
@@ -111,6 +110,91 @@
                         
                     }]
                 }
+            });
+
+            // CYLINDER CHART
+            FusionCharts.ready(function(){
+                var chartObj = new FusionCharts({
+                    type: 'cylinder',
+                    dataFormat: 'json',
+                    renderAt: 'chart-container',
+                    width: '200',
+                    height: '350',
+                    dataSource: {
+                        "chart": {
+                            "theme": "fusion",
+                            "caption": "Water Level in the tank",
+                            "subcaption": "Gearbox A-7",
+                            "lowerLimit": "0",
+                            "upperLimit": fulltank,
+                            "lowerLimitDisplay": "Empty",
+                            "upperLimitDisplay": "Full",
+                            "numberSuffix": " ltrs",
+                            "showValue": "1",
+                            "chartBottomMargin": "40",
+                            "showValue": "0",
+                            "cylFillColor": "#5a7bfd"
+                        },
+                        "value": "90",
+                        "annotations": {
+                            "origw": "400",
+                            "origh": "190",
+                            "autoscale": "1",
+                            "groups": [{
+                                "id": "range",
+                                "items": [{
+                                    "id": "rangeBg",
+                                    "type": "rectangle",
+                                    "x": "$canvasCenterX-45",
+                                    "y": "$chartEndY-30",
+                                    "tox": "$canvasCenterX +45",
+                                    "toy": "$chartEndY-75",
+                                    "fillcolor": "#6caa03"
+                                }, {
+                                    "id": "rangeText",
+                                    "type": "Text",
+                                    "fontSize": "11",
+                                    "fillcolor": "#333333",
+                                    "text": "80 ltrs",
+                                    "x": "$chartCenterX-45",
+                                    "y": "$chartEndY-50"
+                                }]
+                            }]
+                        }
+
+                    },
+                    "events": {
+                        "rendered": function(evtObj, argObj) {
+                            var waterVolume = fulltank;
+                            evtObj.sender.chartInterval = setInterval(function() {
+                                (waterVolume < 10) ? (waterVolume = 80) : "";
+                                var consVolume = waterVolume - usage;
+                                evtObj.sender.feedData && evtObj.sender.feedData("&value=" + consVolume);
+                            }, 0);
+                        },
+                        //Using real time update event to update the annotation
+                        //showing available volume of Diesel
+                        "realTimeUpdateComplete": function(evt, arg) {
+                            var annotations = evt.sender.annotations,
+                                dataVal = evt.sender.getData(),
+                                colorVal = (dataVal >= 70) ? "#6caa03" : ((dataVal <= 35) ? "#e44b02" : "#f8bd1b");
+                            //Updating value
+                            annotations && annotations.update('rangeText', {
+                                "text": dataVal + " ltrs"
+                            });
+                            //Changing background color as per value
+                            annotations && annotations.update('rangeBg', {
+                                "fillcolor": colorVal
+                            });
+
+                        },
+                        "disposed": function(evt, arg) {
+                            clearInterval(evt.sender.chartInterval);
+                        }
+                    }
+                }
+                );
+                chartObj.render();
             });
         }
         
